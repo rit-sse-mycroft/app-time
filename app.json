@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "name": "time",
+  "displayName": "Time",
+  "description": "Tells people the time.",
+  "API": "0",
+  "dependencies": {
+    "stt": "0.1",
+    "tts": "0.1",
+    "logger": "1.0"
+  },
+  "instanceId": "time1"
+}
