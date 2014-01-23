@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<grammar xml:lang="en-US" root="joke" version="1.0" xmlns="http://www.w3.org/2001/06/grammar">
-	<rule id="joke" scope="public">
-		<item>Mycroft what time is it</item>
+<grammar xml:lang="en-US" root="time" version="1.0" xmlns="http://www.w3.org/2001/06/grammar">
+	<rule id="time" scope="public">
+		<item>Mycroft </item>
+		<one-of>
+			<item>do you have the time </item>
+			<item>
+				<one-of>
+					<item>what's </item>
+					<item>what is </item>
+				</one-of>
+				<item>the </item>
+				<item repeat="0-1">
+					<one-of>
+						<item>current </item>
+						<item>exact </item>
+						<item>precise </item>
+					</one-of>
+				</item>
+				<item>time</item>
+			</item>
+			<item>what time is it</item>
+		</one-of>
+		<item repeat="0-1">
+			<one-of>
+				<item> at the moment</item>
+				<item> currently</item>
+				<item> right now</item>
+			</one-of>
+		</item>
 	</rule>
 </grammar>
