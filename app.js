@@ -62,7 +62,7 @@ function connectToMycroft(appName) {
   var client = null;
   if (process.argv.length === 3 && process.argv[2] === '--no-tls') {
     console.log("Not using TLS");
-    client = net.connect({port: 1847}, function(err) {
+    client = net.connect({host: 'athena.wireless.rit.edu', port: 1847}, function(err) {
       if (err) {
         console.error('There was an error establishing connection');
       }

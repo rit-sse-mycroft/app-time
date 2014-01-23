@@ -24,7 +24,7 @@ client.on('data', function(msg) {
 });
 
 client.on('end', function() {
-  app.broadcast({unloadGrammar: 'time'});
+  app.query(client, 'stt', 'unload_grammar', {grammar: 'time'}, ['stt1'], 30);
   console.log('Client disconnected.');
 });
 
@@ -45,7 +45,9 @@ function handleMessage(parsed) {
     console.error('Query Failed.');
     throw parsed.data.message;
   } else if (parsed.type === 'MSG_BROADCAST') {
-    sayTime(parsed.data);
+    if (parsed.data.content.grammar === 'time') {
+      sayTime(parsed.data);
+    }
   } else {
     console.log('Message Receieved');
     console.log(' - Type: ' + parsed.type);
@@ -66,10 +68,10 @@ function sendGrammar(data) {
     var grammarData = {
       grammar: {
         name: 'time',
-        xml: fs.readFileSync('./grammar.xml')
+        xml: fs.readFileSync('./grammar.xml').toString()
       }
     };
-    app.query(client, 'stt', 'load_grammar', data, ['stt1']);
+    app.query(client, 'stt', 'load_grammar', grammarData, ['stt1'], 30);
     sentGrammar = true;
   }
 }
@@ -77,9 +79,6 @@ function sendGrammar(data) {
 // Say the current time
 // data is the data from a message (as JSON)
 function sayTime(data) {
-  if (data.content.text.indexOf('time') === -1) {
-    return;
-  }
   // Get the current (12-hour) time.
   var now = new Date();
   var hour = now.getHours();
@@ -110,7 +109,7 @@ function sayTime(data) {
   } else {
     if (preciseTime) {
       message += hour + ':';
-      message += (minutes < 10 ? '0' : '') + minute; // Add a zero before a minute value less than ten.
+      message += (minute < 10 ? '0' : '') + minute + ' '; // Add a zero before a minute value less than ten.
       message += isAM ? 'A.M.' : 'P.M.';
     } else {
       // If the time is at or near a multiple of 15...
@@ -120,21 +119,23 @@ function sayTime(data) {
         if (minute % 15 !== 0) {
           message += pick(['about', 'around', 'approximately']) + ' ';
         }
-        if (minute >= 60 - CLOSE_ENOUGH_THRESHOLD ||
-            minute <= CLOSE_ENOUGH_THRESHOLD) {            // XX:00
+        if (minute <= CLOSE_ENOUGH_THRESHOLD) {             // XX:00
           message += hour + ' ' + pick(['', 'o\'clock']);
         } else if (minute >= 15 - CLOSE_ENOUGH_THRESHOLD &&
-            minute <= 15 + CLOSE_ENOUGH_THRESHOLD) {      // XX:15
+            minute <= 15 + CLOSE_ENOUGH_THRESHOLD) { mm     // XX:15
           message += 'a quarter ' + pick(['after', 'past']) + ' ';
           message += hour + ' ';
         } else if (minute >= 30 - CLOSE_ENOUGH_THRESHOLD &&
-            minute <= 30 + CLOSE_ENOUGH_THRESHOLD) {      // XX:30
+            minute <= 30 + CLOSE_ENOUGH_THRESHOLD) {        // XX:30
           message += 'half past ';
           message += hour + ' ';
         } else if (minute >= 45 - CLOSE_ENOUGH_THRESHOLD &&
-            minute <= 45 + CLOSE_ENOUGH_THRESHOLD) {      // XX:45
+            minute <= 45 + CLOSE_ENOUGH_THRESHOLD) {        // XX:45
           message += 'a quarter ' + pick(['\'til', 'to', 'until']) + ' ';
           message += (hour + 1 > 12 ? hour + 1 : 1) + ' ';
+        } else if (minute >= 60 - CLOSE_ENOUGH_THRESHOLD) { // XX:59
+          message += (hour + 1 > 12 ? hour + 1 : 1) + ' ';
+          message += pick(['', 'o\'clock']);
         }
       } else { // Some other time.
         if (minute < 30) {
@@ -161,7 +162,10 @@ function sayMessage(message) {
     console.error('Attempted to send message before verification.');
   }
   var data = {
-    text: message,
+    text: [{
+      phrase: message,
+      delay: 0
+    }],
     targetSpeaker: 'speakers'
   };
   // Send the data to TTS.
