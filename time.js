@@ -48,6 +48,9 @@ function handleMessage(parsed) {
     if (parsed.data.content.grammar === 'time') {
       sayTime(parsed.data);
     }
+    else if  (parsed.data.content.grammer === 'date') {
+      sayDate();
+    }
   } else {
     console.log('Message Receieved');
     console.log(' - Type: ' + parsed.type);
@@ -154,6 +157,16 @@ function sayTime(data) {
   console.log('Reporting the time as \"' + message + '\"');
   sayMessage(message);
 }
+
+// Say the current day
+function sayDate() {
+  var now = new Date();
+  var day = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][now.getDay()];
+  var date = now.getDate() + ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"][now.getDate()%10];
+  console.log('Reporting the date as \"' + message + '\"');
+  sayMessage(message);
+}
+
 
 // Send a given message to TTS
 function sayMessage(message) {
