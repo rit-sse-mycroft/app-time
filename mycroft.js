@@ -40,6 +40,8 @@ var Mycroft = function(manifest, host, port) {
   this.manifest_loc = manifest || 'app.json';
   this.port = port || MYCROFT_PORT;
   this.handlers = {};
+  this.dependencies = {};
+  this.verified = false;
 
   this._unconsumed = '';
 
@@ -165,7 +167,7 @@ var Mycroft = function(manifest, host, port) {
 
   this.connectionClosed = function(data) {
     this.handle('CONNECTION_CLOSED', data)
-    logger.error("Connection closed.");
+    logger.info("Connection closed.");
   }
 
   this.handle = function(type, data) {
@@ -280,6 +282,7 @@ var Mycroft = function(manifest, host, port) {
 
   this.appManifestOk = function(){
     logger.info('Manifest Validated');
+    this.verified = true;
   }
 
   this.appManifestFail = function(){
@@ -293,7 +296,7 @@ var Mycroft = function(manifest, host, port) {
 
   //Sends a message of specified type. Adds byte length before message.
   //Does not need to specify a message object. (e.g. APP_UP and APP_DOWN)
-  this.sendMessage = function (type, message) {
+  this.sendMessage = function(type, message) {
     if (typeof(message) === 'undefined') {
       message = '';
     } else {
@@ -306,6 +309,15 @@ var Mycroft = function(manifest, host, port) {
       this.cli.write(length + '\n' + body);
     } else {
       logger.error("The client connection wasn't established, so the message could not be sent.");
+    }
+  }
+
+  this.updateDependencies = function(deps) {
+    for(capability in deps){
+      this.dependencies.capability = this.dependencies.capability || {};
+      for(appId in deps.capability){
+        this.dependencies.capability.appId = deps.capability.appId;
+      }
     }
   }
 
