@@ -3,15 +3,10 @@
   "version": "0.0.1",
   "description": "Mycroft app for telling people the time",
   "main": "time.js",
-  "author": "RIT-SSE",
-  "contributors": [{
-    "name": "Zachary Yaro",
-    "email": "zmyaro@gmail.com",
-    "url": "http://zmyaro.com"
-  }],
+  "author": "Society of Software Engineers",
   "license": "-",
   "dependencies": {
     "mocha": "~1.16.2",
-    "uuid": "~1.4.1"
+    "winston": "~0.7.2"
   }
 }
