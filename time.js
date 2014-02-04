@@ -7,77 +7,61 @@ var CHANCE_OF_PRECISE_TIME = 0.3;
 var CLOSE_ENOUGH_THRESHOLD = 2;
 
 var fs = require('fs');
-var app = require('./app.js');
-var client = app.connectToMycroft(APP_NAME);
+var mycroft = require('./mycroft.js');
+var client = mycroft.Mycroft('./app.json', 'localhost', 1847);
 
-app.sendManifest(client, './app.json');
-
-var verified = false; // Set to true when APP_MANIFEST_OKAY received
 var sentGrammar = false; // Set to true when grammar has successfully been sent.
 
 
-client.on('data', function(msg) {
-  parsed = app.parseMessage(msg);
-  for (var i = 0; i < parsed.length; i++) {
-    handleMessage(parsed[i]);
+client.on('APP_MANIFEST_OK', function(data){
+  client.appManifestOk();
+});
+
+client.on('APP_MANIFEST_FAIL', function(data){
+  client.appManifestFail();
+});
+
+client.on('MSG_GENERAL_FAILURE', function(data){
+  client.msgGeneralFailure(data);
+});
+
+
+client.on('CONNECTION_CLOSED', function(data) {
+  client.query('stt', 'unload_grammar', {grammar: 'time'}, ['stt1'], 30);
+  client.down();
+});
+
+client.on('APP_DEPENDENCY', function(data){
+  client.updateDependencies(data);
+  if(client.dependencies.stt !== undefined && client.dependencies.tts !== undefined) {
+    if(client.stt.stt1 === 'up' && !sentGrammar){
+      var grammarData = {
+        grammar: {
+          name: 'time',
+          xml: fs.readFileSync('./grammar.xml').toString()
+        }
+      };
+      app.query(client, 'stt', 'load_grammar', grammarData, ['stt1'], 30);
+      sentGrammer = true;
+    }else if(client.dependencies.stt.stt1 === 'down' && sentGrammar){
+      sentGrammar = false;
+    }
+    if(client.status.down && client.dependencies.tts.text2speech === 'up' && client.dependencies.stt.stt1 === 'up'){
+      up();
+    }else if(client.status.up &&(client.dependencies.tts.text2speech === 'down' && client.dependencies.stt.stt1 === 'down')){
+      down();
+    }
   }
 });
 
-client.on('end', function() {
-  app.query(client, 'stt', 'unload_grammar', {grammar: 'time'}, ['stt1'], 30);
-  console.log('Client disconnected.');
+client.on('MSG_BROADCAST', function(data){
+  if(data.content.grammar === 'time') {
+    sayTime(data);
+  }
 });
 
-// Handle a single command.
-// parsed is a parsed command (as JSON) with type:String and data:Object.
-function handleMessage(parsed) {
-  // Check the type of this message.
-  if (parsed.type === 'APP_MANIFEST_OK'/* || parsed.type === 'APP_MANIFEST_FAIL'*/) {
-    var dependencies = app.manifestCheck(parsed);
-    verified = true;
-  } else if (parsed.type === 'APP_DEPENDENCY') {
-    sendGrammar(parsed.data);
-  } else if (parsed.type === 'MSG_QUERY') {
-    console.log('Query received');
-  } else if (parsed.type === 'MSG_QUERY_SUCCESS') {
-    console.log('Query successful');
-  } else if (parsed.type === 'MSG_QUERY_FAIL') {
-    console.error('Query Failed.');
-    throw parsed.data.message;
-  } else if (parsed.type === 'MSG_BROADCAST') {
-    if (parsed.data.content.grammar === 'time') {
-      sayTime(parsed.data);
-    }
-    else if  (parsed.data.content.grammer === 'date') {
-      sayDate();
-    }
-  } else {
-    console.log('Message Receieved');
-    console.log(' - Type: ' + parsed.type);
-    console.log(' - Message:' + JSON.stringify(parsed.data));
-  }
-  
-  if (dependencies) {
-    if (dependencies.logger === 'up') {
-      app.up(client);
-    }
-  }
-}
-
-// Send the grammar
-// data is the data from a message (as JSON)
-function sendGrammar(data) {
-  if (!sentGrammar && data.stt && data.stt.stt1 && data.stt.stt1 === 'up') {
-    var grammarData = {
-      grammar: {
-        name: 'time',
-        xml: fs.readFileSync('./grammar.xml').toString()
-      }
-    };
-    app.query(client, 'stt', 'load_grammar', grammarData, ['stt1'], 30);
-    sentGrammar = true;
-  }
-}
+client.connect();
+client.sendManifest();
 
 // Say the current time
 // data is the data from a message (as JSON)
@@ -97,13 +81,13 @@ function sayTime(data) {
     Math.random() < CHANCE_OF_PRECISE_TIME;
   var tellMillis = data.content.text.indexOf('milliseconds') !== -1 ||
     data.content.text.indexOf('millis') !== -1;
-  
+
   // Build the string.
   var message = pick([
     pick(['It is', 'It\'s']) + ' ' + pick(['', 'currently ']),
     'The ' + pick(['', 'current ']) + 'time is '
   ]);
-  
+
   if (Math.random() < CHANCE_OF_SARCASM) {
     message += 'now.';
   } else if (tellMillis) {
@@ -171,7 +155,7 @@ function sayDate() {
 // Send a given message to TTS
 function sayMessage(message) {
   // Do not attempt to send a message if not yet verified.
-  if (!verified) {
+  if (!client.verified) {
     console.error('Attempted to send message before verification.');
   }
   var data = {
