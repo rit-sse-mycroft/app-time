@@ -1,13 +1,10 @@
 var tls = require('tls');
 var net = require('net');
-//var uuid = require('uuid');
 var node_crypto = require('crypto');
 var rby = function(bytes) {
   return node_crypto.randomBytes(bytes).toString('hex');
 }
-var uuid = {v4: function() {
-    return (rby(4)+'-'+rby(2)+'-4'+rby(2).slice(1)+'-a'+rby(2).slice(1)+'-'+rby(6)) //This is a terrible hack
-}};
+var uuid = require('uuid');
 var fs = require('fs');
 var sys = require('sys')
 var exec = require('child_process').exec;
@@ -40,8 +37,6 @@ var Mycroft = function(manifest, host, port) {
   this.manifest_loc = manifest || 'app.json';
   this.port = port || MYCROFT_PORT;
   this.handlers = {};
-  this.dependencies = {};
-  this.verified = false;
 
   this._unconsumed = '';
 
@@ -89,7 +84,7 @@ var Mycroft = function(manifest, host, port) {
           data = JSON.parse(toParse);
         }
         catch(err) {
-          logger.error('Recieved malformed message, responding with MSG_MALFORMED');
+          logger.error('Received malformed message, responding with MSG_MALFORMED');
           this.sendMessage("MSG_MALFORMED \n" + err);
           return;
         }
@@ -167,7 +162,7 @@ var Mycroft = function(manifest, host, port) {
 
   this.connectionClosed = function(data) {
     this.handle('CONNECTION_CLOSED', data)
-    logger.info("Connection closed.");
+    logger.error("Connection closed.");
   }
 
   this.handle = function(type, data) {
@@ -282,7 +277,6 @@ var Mycroft = function(manifest, host, port) {
 
   this.appManifestOk = function(){
     logger.info('Manifest Validated');
-    this.verified = true;
   }
 
   this.appManifestFail = function(){
@@ -296,7 +290,7 @@ var Mycroft = function(manifest, host, port) {
 
   //Sends a message of specified type. Adds byte length before message.
   //Does not need to specify a message object. (e.g. APP_UP and APP_DOWN)
-  this.sendMessage = function(type, message) {
+  this.sendMessage = function (type, message) {
     if (typeof(message) === 'undefined') {
       message = '';
     } else {
@@ -309,15 +303,6 @@ var Mycroft = function(manifest, host, port) {
       this.cli.write(length + '\n' + body);
     } else {
       logger.error("The client connection wasn't established, so the message could not be sent.");
-    }
-  }
-
-  this.updateDependencies = function(deps) {
-    for(capability in deps){
-      this.dependencies.capability = this.dependencies.capability || {};
-      for(appId in deps.capability){
-        this.dependencies.capability.appId = deps.capability.appId;
-      }
     }
   }
 
