@@ -12,10 +12,12 @@ var client = mycroft.Mycroft('time', './app.json', 'localhost', 1847);
 
 var sentGrammar = false; // Set to true when grammar has successfully been sent.
 
+// Handler for CONNECTION_CLOSED
 client.on('CONNECTION_CLOSED', function(data) {
   client.query('stt', 'unload_grammar', {grammar: 'time'}, ['stt1'], 30);
 });
 
+// Handler for APP_DEPENDENCY
 client.on('APP_DEPENDENCY', function(data){
   client.updateDependencies(data);
   if(client.dependencies.stt !== undefined && client.dependencies.tts !== undefined) {
@@ -39,6 +41,7 @@ client.on('APP_DEPENDENCY', function(data){
   }
 });
 
+// Handler for MSG_BROADCAST
 client.on('MSG_BROADCAST', function(data){
   if(data.content.grammar === 'time') {
     sayTime(data);
