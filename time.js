@@ -35,7 +35,7 @@ client.on('APP_DEPENDENCY', function(data){
     }
     if(client.status.down && client.dependencies.tts.text2speech === 'up' && client.dependencies.stt.stt1 === 'up'){
       up();
-    }else if(client.status.up &&(client.dependencies.tts.text2speech === 'down' && client.dependencies.stt.stt1 === 'down')){
+    }else if(client.status.up &&(client.dependencies.tts.text2speech === 'down' || client.dependencies.stt.stt1 === 'down')){
       down();
     }
   }
