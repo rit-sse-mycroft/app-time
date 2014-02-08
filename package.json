@@ -6,8 +6,6 @@
   "author": "Society of Software Engineers",
   "license": "BSD",
   "dependencies": {
-    "mocha": "~1.16.2",
-    "winston": "~0.7.2",
-    "uuid": "~1.4.1"
+    "mocha": "~1.16.2"
   }
 }
