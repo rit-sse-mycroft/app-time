@@ -4,7 +4,7 @@
   "description": "Mycroft app for telling people the time",
   "main": "time.js",
   "author": "Society of Software Engineers",
-  "license": "-",
+  "license": "BSD",
   "dependencies": {
     "mocha": "~1.16.2",
     "winston": "~0.7.2",

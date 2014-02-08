@@ -7,28 +7,13 @@ var CHANCE_OF_PRECISE_TIME = 0.3;
 var CLOSE_ENOUGH_THRESHOLD = 2;
 
 var fs = require('fs');
-var mycroft = require('./mycroft.js');
-var client = mycroft.Mycroft('./app.json', 'localhost', 1847);
+var mycroft = require('mycroft');
+var client = mycroft.Mycroft('time', './app.json', 'localhost', 1847);
 
 var sentGrammar = false; // Set to true when grammar has successfully been sent.
 
-
-client.on('APP_MANIFEST_OK', function(data){
-  client.appManifestOk();
-});
-
-client.on('APP_MANIFEST_FAIL', function(data){
-  client.appManifestFail();
-});
-
-client.on('MSG_GENERAL_FAILURE', function(data){
-  client.msgGeneralFailure(data);
-});
-
-
 client.on('CONNECTION_CLOSED', function(data) {
   client.query('stt', 'unload_grammar', {grammar: 'time'}, ['stt1'], 30);
-  client.down();
 });
 
 client.on('APP_DEPENDENCY', function(data){
@@ -41,7 +26,7 @@ client.on('APP_DEPENDENCY', function(data){
           xml: fs.readFileSync('./grammar.xml').toString()
         }
       };
-      app.query(client, 'stt', 'load_grammar', grammarData, ['stt1'], 30);
+      client.query('stt', 'load_grammar', grammarData, ['stt1'], 30);
       sentGrammer = true;
     }else if(client.dependencies.stt.stt1 === 'down' && sentGrammar){
       sentGrammar = false;
