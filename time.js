@@ -3,8 +3,8 @@ var APP_NAME = 'time';
 var CHANCE_OF_SARCASM = 0.01;
 
 var fs = require('fs');
-//var Mycroft = require('mycroft');
-var Mycroft = require('./mycroft.js');
+var Mycroft = require('mycroft');
+//var Mycroft = require('./mycroft.js');
 var client = new Mycroft('time', './app.json', 'localhost', 1847);
 
 var sentGrammar = false; // Set to true when grammar has successfully been sent.
