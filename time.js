@@ -1,7 +1,7 @@
 var APP_NAME = 'time';
 // Probability Mycroft will be rude and sacrastic
 var CHANCE_OF_SARCASM = 0.01;
-
+var path = require('path')
 var fs = require('fs');
 var Mycroft = require('mycroft');
 //var Mycroft = require('./mycroft.js');
@@ -16,7 +16,6 @@ client.on('CONNECTION_CLOSED', function(data) {
 
 // Handler for APP_DEPENDENCY
 client.on('APP_DEPENDENCY', function(data){
-  client.updateDependencies(data);
   if(client.dependencies.stt.stt1 !== undefined && client.dependencies.tts !== undefined) {
     if(client.dependencies.stt.stt1 === 'up' && !sentGrammar){
       var grammarData = {
@@ -124,3 +123,4 @@ function pick(items) {
   items.sort(function() { return Math.random() - 0.5; });
   return items[0];
 }
+client.connect();
