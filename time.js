@@ -99,10 +99,6 @@ function sayDate() {
 
 // Send a given message to TTS
 function sayMessage(message) {
-  // Do not attempt to send a message if not yet verified.
-  if (!client.verified) {
-    console.error('Attempted to send message before verification.');
-  }
   var data = {
     text: [{
       phrase: message,
