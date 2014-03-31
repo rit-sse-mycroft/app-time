@@ -44,7 +44,7 @@ client.on('MSG_BROADCAST', function(data){
     if(data.content.text.indexOf('time') !== -1){
       sayTime(data);    
     }
-    if(data.content.text.indexOf('date') !== -1){
+    if(data.content.text.indexOf('date') !== -1 || data.content.text.indexOf('today') !== -1 || data.content.text.indexOf('day') !== -1){
       sayDate();
     }
   }

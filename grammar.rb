@@ -29,9 +29,16 @@ module TimeGrammar
   							item "whats's"
   							item "what is"
   						end
-  						item 'the date'
+  						item do
+                one_of do
+                  item 'the date'
+                  item 'the day'
+                  item 'today'
+                end
+              end
   					end
   					item 'do you have the date'
+            item 'what day is it'
   				end
   			end
   		end
