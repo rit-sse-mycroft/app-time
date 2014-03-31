@@ -13,5 +13,6 @@ logs
 results
 build
 .grunt
+mycroft.js
 
 node_modules
