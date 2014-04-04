@@ -3,36 +3,18 @@
   <rule id="time" scope="public">
     <item>Mycroft</item>
     <one-of>
+      <item>do you have the time</item>
+      <item>what time is it</item>
+      <item>what day is it</item>
       <item>
         <one-of>
-          <item>do you have the time</item>
-          <item>
-            <one-of>
-              <item>whats's</item>
-              <item>what is</item>
-            </one-of>
-            <item>the time</item>
-          </item>
-          <item>what time is it</item>
+          <item>what's the</item>
+          <item>what is the</item>
         </one-of>
-      </item>
-      <item>
         <one-of>
-          <item>
-            <one-of>
-              <item>whats's</item>
-              <item>what is</item>
-            </one-of>
-            <item>
-              <one-of>
-                <item>the date</item>
-                <item>the day</item>
-                <item>today</item>
-              </one-of>
-            </item>
-          </item>
-          <item>do you have the date</item>
-          <item>what day is it</item>
+          <item>day</item>
+          <item>date</item>
+          <item>time</item>
         </one-of>
       </item>
     </one-of>
