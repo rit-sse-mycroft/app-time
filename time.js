@@ -1,23 +1,37 @@
+var fs = require('fs');
+var path = require('path');
+var Mycroft = require('mycroft');
+
+
 var APP_NAME = 'time';
 // Probability Mycroft will be rude and sacrastic
 var CHANCE_OF_SARCASM = 0.01;
-var path = require('path')
-var fs = require('fs');
-var Mycroft = require('mycroft');
-//var Mycroft = require('./mycroft.js');
-var client = new Mycroft('time', './app.json', 'localhost', 1847);
 
-var sentGrammar = false; // Set to true when grammar has successfully been sent.
 
-// Handler for CONNECTION_CLOSED
+var client = new Mycroft(APP_NAME, './app.json', 'localhost', 1847);
+// Set to true when grammar has successfully been sent.
+var sentGrammar = false;
+
+
+// When connection is closed unload our grammar
 client.on('CONNECTION_CLOSED', function(data) {
   client.query('stt', 'unload_grammar', {grammar: 'time'}, ['stt1'], 30);
 });
 
+
 // Handler for APP_DEPENDENCY
+// send our grammar if needed
 client.on('APP_DEPENDENCY', function(data){
-  if(client.dependencies.stt.stt1 !== undefined && client.dependencies.tts !== undefined) {
-    if(client.dependencies.stt.stt1 === 'up' && !sentGrammar){
+  var has_stt = client.dependencies.stt.stt1 !== undefined;
+  var has_tts = client.dependencies.tts !== undefined;
+
+  if (has_stt && has_tts) {
+    var stt1_status = client.dependencies.stt.stt1;
+    var tts_status = client.dependencies.tts.text2speech;
+
+    // figure out grammar stuff
+    if (stt1_status === 'up' && !sentGrammar){
+      // stt just went up! send our grammar
       var grammarData = {
         grammar: {
           name: 'time',
@@ -26,16 +40,24 @@ client.on('APP_DEPENDENCY', function(data){
       };
       client.query('stt', 'load_grammar', grammarData, ['stt1'], 30);
       sentGrammer = true;
-    }else if(client.dependencies.stt.stt1 === 'down' && sentGrammar){
+    }
+    else if (stt1_status === 'down' && sentGrammar){
+      // stt just went down, note that we need now need to send a grammar
       sentGrammar = false;
     }
-    if(client.status.down && client.dependencies.tts.text2speech === 'up' && client.dependencies.stt.stt1 === 'up'){
+
+    // figure out if we're up or down
+    var tts_down = tts_status === 'down';
+    var stt_down = client.dependencies.stt.stt1 === 'down';
+    if (client.status.down && tts_status === 'up' && stt1_status === 'up') {
       up();
-    }else if(client.status.up &&(client.dependencies.tts.text2speech === 'down' || client.dependencies.stt.stt1 === 'down')){
+    }
+    else if (client.status.up && (tts_down || stt_down)){
       down();
     }
   }
 });
+
 
 // Handler for MSG_BROADCAST
 client.on('MSG_BROADCAST', function(data){
@@ -83,6 +105,7 @@ function sayTime(data) {
   sayMessage(message);
 }
 
+
 // Say the current day
 function sayDate() {
   var message = pick(['Today is', 'The date is', '']);
@@ -118,5 +141,9 @@ function pick(items) {
   return items[0];
 }
 
+
+client.on('MANIFEST_ERROR', function(err){
+  console.log(err);
+});
 client.connect();
 client.sendManifest();
