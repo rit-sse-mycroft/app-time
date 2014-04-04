@@ -49,8 +49,6 @@ client.on('MSG_BROADCAST', function(data){
   }
 });
 
-client.connect();
-client.sendManifest();
 
 // Say the current time
 // data is the data from a message (as JSON)
@@ -119,4 +117,6 @@ function pick(items) {
   items.sort(function() { return Math.random() - 0.5; });
   return items[0];
 }
+
 client.connect();
+client.sendManifest();
