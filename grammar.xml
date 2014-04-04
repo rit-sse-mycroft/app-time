@@ -8,13 +8,14 @@
       <item>what day is it</item>
       <item>
         <one-of>
-          <item>what's the</item>
-          <item>what is the</item>
+          <item>what's</item>
+          <item>what is</item>
         </one-of>
         <one-of>
-          <item>day</item>
-          <item>date</item>
-          <item>time</item>
+          <item>the day</item>
+          <item>the date</item>
+          <item>the time</item>
+          <item>today</item>
         </one-of>
       </item>
     </one-of>

@@ -14,13 +14,14 @@ module TimeGrammar
   			item 'what day is it'
   			item do
   				one_of do
-  					item "what's the"
-  					item "what is the"
+  					item "what's"
+  					item "what is"
   				end
   				one_of do
-  					item 'day'
-  					item 'date'
-  					item 'time'
+  					item 'the day'
+  					item 'the date'
+  					item 'the time'
+            item 'today'
   				end
   			end
   		end
