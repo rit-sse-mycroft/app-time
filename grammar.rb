@@ -9,36 +9,18 @@ module TimeGrammar
   	public_rule 'time' do
   		item 'Mycroft'
   		one_of do
+  			item 'do you have the time'
+  			item 'what time is it'
+  			item 'what day is it'
   			item do
   				one_of do
-  					item 'do you have the time'
-  					item do 
-  						one_of do
-  							item "whats's"
-  							item "what is"
-  						end
-  						item 'the time'
-  					end
-  					item 'what time is it'
+  					item "what's the"
+  					item "what is the"
   				end
-  			end
-  			item do
   				one_of do
-  					item do 
-  						one_of do
-  							item "whats's"
-  							item "what is"
-  						end
-  						item do
-                one_of do
-                  item 'the date'
-                  item 'the day'
-                  item 'today'
-                end
-              end
-  					end
-  					item 'do you have the date'
-            item 'what day is it'
+  					item 'day'
+  					item 'date'
+  					item 'time'
   				end
   			end
   		end
