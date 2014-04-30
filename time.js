@@ -2,13 +2,15 @@ var fs = require('fs');
 var path = require('path');
 var Mycroft = require('mycroft');
 
+var host = process.argv[2];
+var port = parseInt(process.argv[3]);
 
 var APP_NAME = 'time';
 // Probability Mycroft will be rude and sacrastic
 var CHANCE_OF_SARCASM = 0.01;
 
 
-var client = new Mycroft(APP_NAME, './app.json', 'localhost', 1847);
+var client = new Mycroft(APP_NAME, './app.json', host, port);
 // Set to true when grammar has successfully been sent.
 var sentGrammar = false;
 
