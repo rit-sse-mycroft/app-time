@@ -2,13 +2,20 @@ var fs = require('fs');
 var path = require('path');
 var Mycroft = require('mycroft');
 
-var host = process.argv[2];
-var port = parseInt(process.argv[3]);
+var args = process.argv;
+var host = "localhost"
+var port = 1847
 
 var APP_NAME = 'time';
 // Probability Mycroft will be rude and sacrastic
 var CHANCE_OF_SARCASM = 0.01;
 
+//if there is a port and host passed in it will use that insted format should be:
+//node time.js (host) (port) (optional --no-tls)
+if(args.length >= 4){ 
+  host = args[2];
+  port = parseInt(args[3]);
+}
 
 var client = new Mycroft(APP_NAME, './app.json', host, port);
 // Set to true when grammar has successfully been sent.
